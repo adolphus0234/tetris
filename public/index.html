@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Tetris</title>
+	<link rel="shortcut icon" href="#">
+	<link rel="stylesheet" type="text/css" href="index.css">
+</head>
+	<body class='body'>
+		<div class='game-cont'>
+			<h3 class='session'><!-- ~ Current Session ~ --></h3>
+			<div class='sess-grid'>
+				<h3 class='game-count'><!-- Games: 0 --></h3>
+				<h3 class='b-score'><!-- Best Score: 10000 --></h3>
+				<h3 class='b-t-rate'><!-- Best Tet Rate: 15% --></h3>
+				<h3 class='avg-score'><!-- Avg Score: 7880 --></h3>
+				<h3 class='avg-t-rate'><!-- Avg Tet Rate: 11.4% --></h3>
+				<h3 class='avg-lines'><!-- Avg Lines Cleared: 54 --></h3>
+				<h3 class='tendencies_1'></h3>
+			</div>
+			<canvas class='pop-up' width='50' height='50'></canvas>
+			<div class='grid'>
+				<div class='stats'>
+					<div class='stat-flex'>
+						<canvas class='statistics' width='100' height='200'></canvas>
+						<h3 class='stat-heading'>STATISTICS</h3>
+					</div>
+					<p class="t-r">TET RATE: 0%</p>
+					<p class="i-d">'I' DROUGHT: 0</p>
+				</div>
+				<div class='game-board'>
+					<canvas class='tetris' width='200' height='420'></canvas>
+					<canvas class='tetris-o' width='200' height='400'></canvas>
+					<h3 class='pause'></h3>
+					<h3 class='level-select'>SELECT LEVEL:</h3>
+					<h3 class='lvl-num'>00</h3>
+					<h3 class='g-o'></h3>
+					<h3 class='recap'><!-- Recap --></h3>
+					<h3 class='single-clr'><!-- Single: 55 --></h3>
+					<h3 class='double-clr'><!-- Double: 20 --></h3>
+					<h3 class='triple-clr'><!-- Triple: 4 --></h3>
+					<h3 class='tetris-clr'><!-- Tetris: 11 --></h3>
+					<h3 class='tet-rate'><!-- TET%: 23% --></h3>
+					<h3 class='d-1'><!-- DT TOT: 11 --></h3>
+					<h3 class='d-2'><!-- DT AVG: 13 --></h3>
+					<h3 class='d-3'><!-- DT MAX: 21 --></h3>
+					<h3 class='press-start'><!-- PRESS START --></h3>
+				</div>
+				<div class='scr-lvl-lines'>
+					<div class="top-cont">
+						<p class='top'>TOP:</p>
+						<p class='top-score'>0000000</p>
+					</div>
+					<div class="top-cont">
+						<p class='score-heading'>SCORE:</p>
+						<p class="score">0000000</p>
+					</div>
+					<p class='lines'>LINES: 0</p>
+					<h3 class='up-next'>NEXT</h3>
+					<canvas class='next' width='180' height='180'></canvas>
+					<div class='lvl-cont'>
+						<p class='level'>LEVEL:</p>
+						<p class='level-num'>--</p>
+					</div>
+					<p class='gp-connect'></p>
+				</div>
+			</div>
+		</div>
+		<script type="module" src='main.js'></script>
+	</body>
+</html>
