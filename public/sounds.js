@@ -1,5 +1,6 @@
 const levelUpAlert = new Audio('./SFX/next_level.mp3');
 const select_pause = new Audio('./SFX/select_sound.mp3');
+const pause = new Audio('./SFX/pause_sound.mp3');
 const pieceDrop = new Audio('./SFX/tetris_drop.mp3');
 const pieceMove = new Audio('./SFX/tetris_pc_move.mp3');
 const pieceRotate = new Audio('./SFX/tetris_pc_rotate.mp3');
@@ -10,11 +11,15 @@ const topOut = new Audio('./SFX/top_out.mp3');
 
 export default class SoundBoard {
 	constructor() {
-
 	}
 
 	playLevelUpAlert() {
 		levelUpAlert.play();
+	}
+
+	playPause() {
+		pause.play();
+		setTimeout(function() {trimAudio(pause)}, 500);
 	}
 
 	playSelectPause() {
@@ -29,7 +34,7 @@ export default class SoundBoard {
 
 	playPieceMove() {
 		pieceMove.play();
-		setTimeout(function() {trimAudio(pieceMove)}, 100);
+		setTimeout(function() {trimAudio(pieceMove)}, 80);
 	}
 
 	playPieceRotate() {

@@ -1,64 +1,40 @@
-//Constants------------------
-
-const pieces = 'ILJOTSZ';
-
-//Global Variables-------------
-
-let x = 4;
-let o = 1.5;
-let y = 0;
-
-let type_next_2;
-
 let firstMove = true;
 let secondMove = false;
 
-let gridCount = 0;
-let delay = 400;
-
 export default class Player {
-	constructor(tetris, canvas_n, canvas_s, sound_board) {
-
-		this.type = pieces[pieces.length * Math.random() | 0];
-		this.type_next = pieces[pieces.length * Math.random() | 0];
-		this.cur_type = this.type;
-
-		//Initial Offsets-------------------------------
-
-		if (this.type === "O" || this.type === "I") {
-			x = 3;
-		} else {
-			x = 4;
-		}
-
-		if (this.type_next === "O" || this.type_next === "I") {
-			o = 2;
-		} else {
-			o = 1.5;
-		}
-
-		//----------------------------------------------
-
-		this.canvas_next = canvas_n;
-		this.context_next = this.canvas_next.getContext('2d');
-		this.width_n = this.canvas_next.width;
-
-		this.canvas_stat = canvas_s;
-		this.context_stat = this.canvas_stat.getContext('2d');
+	constructor(tetris, gui, sound_board) {
+		
+		//OBJECTS
 
 		this.tetris = tetris;
 		this.arena = tetris.arena;
+		this.sounds = sound_board;
+
+		this.gUI = gui;
+
+		//VARIABLES----------------------------
+
+		this.pieces = 'ILJOTSZ';
+
+		this.type = this.pieces[this.pieces.length * Math.random() | 0];
+		this.type_next = this.pieces[this.pieces.length * Math.random() | 0];
+		this.cur_type = this.type;
+		this.type_next_2;
+
+		this.gridCount = 0;
+
+		//PLAYER/NEXT PIECES-------------------------
 		
-		this.pos = {x: x, y: y};
 		this.matrix = this.createPiece(this.type);
+		this.pos = {x: (this.arena.matrix[0].length / 2 | 0) 
+					    - (this.matrix[0].length / 2 | 0), y: 0};
 
 		this.nextPiece;
 		this.upNext = {
-			pos: {x: (this.width_n / 2) / 30 - o , y: 2},
 			matrix: this.createPiece(this.type_next),
 		}
 
-		this.sounds = sound_board;
+		//STAT VARIABLES-------------------------------
 
 		this.statCounts = [0, 0, 0, 0, 0, 0, 0];
 
@@ -80,11 +56,13 @@ export default class Player {
 
 		this.droughtArray = [];
 
+		//RENAME vvv
+
 		this.dD = false;
 		this.i_stat = true;
 	}
 
-	calcFinalStats(deltaTime) {
+	calcFinalStats() {
 		if (this.tetris.endGame === true) {
 			if (this.droughtArray.length > 0) {
 				const num = this.droughtArray.reduce((a, b) => a + b, 0);
@@ -141,76 +119,72 @@ export default class Player {
 		}
 	}
 
-	drawStatBoard(tetris) {
-		tetris.drawMatrix(this.createPiece('T'), {x: 2, y:3}, this.context_stat);
-		tetris.drawMatrix(this.createPiece('J'), {x: 2, y:6}, this.context_stat);
-		tetris.drawMatrix(this.createPiece('Z'), {x: 2, y:9}, this.context_stat);
-		tetris.drawMatrix(this.createPiece('O'), {x: 2, y:12}, this.context_stat);
-		tetris.drawMatrix(this.createPiece('S'), {x: 2, y:15}, this.context_stat);
-		tetris.drawMatrix(this.createPiece('L'), {x: 2, y:18}, this.context_stat);
-		tetris.drawMatrix(this.createPiece('I'), {x: 2, y:22}, this.context_stat);
-
-		this.context_stat.fillStyle = 'red';
-		this.context_stat.font = '2px Georgia';
-		this.context_stat.fillText(`${this.countT}`.padStart(3, '0'), 7, 6);
-		this.context_stat.fillText(`${this.countJ}`.padStart(3, '0'), 7, 9);
-		this.context_stat.fillText(`${this.countZ}`.padStart(3, '0'), 7, 12);
-		this.context_stat.fillText(`${this.countO}`.padStart(3, '0'), 7, 15);
-		this.context_stat.fillText(`${this.countS}`.padStart(3, '0'), 7, 18);
-		this.context_stat.fillText(`${this.countL}`.padStart(3, '0'), 7, 21);
-		this.context_stat.fillText(`${this.countI}`.padStart(3, '0'), 7, 24);
-	}
-
-	drop(tetris, arena) {
+	drop() {
 		let that = this;
 		
 		function delayedSweep() {
 			setTimeout(function() {
-				arena.sweep(tetris);
-			}, delay);
+				that.arena.sweep(that.tetris);
+			}, 400);
 		}
 
 		function dropDelay() {
-			if (arena.rC === true) {
+			if (that.arena.rowClear === true) {
 				setTimeout(function() {
 					that.dD = false;
-					that.reset(arena, arena.matrix, tetris);
+					that.reset();
 				}, 400);
 			} else {
 				setTimeout(function() {
 					that.dD = false;
-					that.reset(arena, arena.matrix, tetris);
+					that.reset();
 				}, 150);
 			}
 		}
 
 		this.pos.y++;
-		if (arena.collide(this)) {
-			this.dD = true;
-			this.pos.y--;
-			arena.merge(this);
-			this.sounds.playPieceDrop();
-			arena.rowClearState(tetris);
-			dropDelay();
-			delayedSweep();
-			// this.reset(arena, arena.matrix, tetris);
-			gridCount = 0;
+
+		if (this.arena.collide(this)) {
+			if (this.dD === false) {
+				
+				this.pos.y--;
+				this.arena.merge(this);
+				this.sounds.playPieceDrop();
+				this.arena.rowClearState(this.tetris);
+				dropDelay();
+				delayedSweep();
+				this.gridCount = 0;	
+				this.dD = true;
+			}	
 		}
-		tetris.dropCounter = 0;
+		this.tetris.dropCounter = 0;	
 	}
 
 	dropDown() {
-		this.drop(this.tetris, this.arena);
-		gridCount = gridCount + 1;
-		if (gridCount === 2) {
+		this.drop();
+
+		this.gridCount = this.gridCount + 1;
+
+		if (this.gridCount === 2) {
 			this.tetris.score = this.tetris.score + 1;
-			gridCount = 0;
+			this.tetris.tetrisScore();
+			this.gridCount = 0;
+		}
+	}
+
+	dropDownScoreOnly() {
+		this.gridCount = this.gridCount + 1;
+
+		if (this.gridCount === 2) {
+			this.tetris.score = this.tetris.score + 1;
+			this.tetris.tetrisScore();
+			this.gridCount = 0;
 		}
 	}
 
 	firstMoveCond_1(_type) {
 		if (firstMove === true) {
-			type_next_2 = _type;
+			this.type_next_2 = _type;
 		}
 	}
 
@@ -218,13 +192,13 @@ export default class Player {
 		if (!firstMove) {
 			this.type_next = _type;
 		} else {
-			this.type_next = type_next_2;
+			this.type_next = this.type_next_2;
 		}
 
 		firstMove = false;
 	}
 
-	move(dir, arena) {
+	move(dir) {
 		this.pos.x += dir;
 
 		if (this.arena.collide(this)) {
@@ -233,36 +207,37 @@ export default class Player {
 	}
 
 	moveLeft() {
-		this.move(-1, this.arena);
-		this.sounds.playPieceMove();
+		this.move(-1);
+		if (!this.dD) {
+			this.sounds.playPieceMove();
+		}		
 	}
 
 	moveRight() {
-		this.move(1, this.arena);
-		this.sounds.playPieceMove();
+		this.move(1);
+		if (!this.dD) {
+			this.sounds.playPieceMove();
+		}
 	}
 
-	reset(arena, ar_matrix, tetris) {
-		
-		let _type = pieces[pieces.length * Math.random() | 0];
+	reset() {	
+		let _type = this.pieces[this.pieces.length * Math.random() | 0];
 
 		this.firstMoveCond_1(_type);
 
 		this.matrix = this.nextPiece;
-		this.pos.y = y;
-		this.pos.x = (ar_matrix[0].length / 2 | 0)	
+		this.pos.y = 0;
+		this.pos.x = (this.arena.matrix[0].length / 2 | 0)	
 							- (this.matrix[0].length / 2 | 0);
-
-		if (_type === "O" || _type === "I") {
-			this.upNext.pos.x = 1;
-		} else {
-			this.upNext.pos.x = 1.5;
-		}
 
 		//firstMove conditons apply------------	
 
 		this.updateStatistics();
 		this.updateDroughtCount();
+
+		if (this._droughtCount === 14) {
+			this.totalDroughts = this.totalDroughts + 1;
+		}
 
 		//------------------------------------
 		
@@ -270,10 +245,16 @@ export default class Player {
 
 		this.firstMoveCond_2(_type);
 
-		this.topOutCheck(tetris);
+		this.topOutCheck(this.tetris, this.arena);
+
+		let that = this;
+
+		setTimeout(function() {
+			that.gUI.drawStaticGUI();
+		}, 30);	
 	}
 
-	rotate(dir, arena) {
+	rotate(dir) {
 		let offset = 1;
 		const pos = this.pos.x
 		this._rotateMatrix(this.matrix, dir);
@@ -311,12 +292,12 @@ export default class Player {
 	}
 
 	rotateLeft() {
-		this.rotate(-1, this.arena);
+		this.rotate(-1);
 		this.sounds.playPieceRotate();
 	}
 
 	rotateRight() {
-		this.rotate(1, this.arena);
+		this.rotate(1);
 		this.sounds.playPieceRotate();
 	}
 
@@ -329,20 +310,23 @@ export default class Player {
 		this.countL = this.statCounts[5];
 		this.countI = this.statCounts[6];
 
-		if (this.i_stat === true &&
-			this.droughtCount < 1) {
+		if (this.i_stat === true && this.droughtCount < 1) {
+
 			if (this.cur_type !== 'I') {
-				this.droughtCount = this.droughtCount + 1
+				this.droughtCount = this.droughtCount + 1;
+
 			} else if (this.cur_type === 'I') {
 				this.droughtCount = 0;
-			} 
+			}
 			this.i_stat = false;
 		}
 	}
 
 	y_pos() {
 		this.pos.y = 0;
+
 		let that = this;
+
 		setTimeout(function() {
 			that.update = function() {
 				this.nextPiece = this.upNext.matrix;
@@ -351,29 +335,32 @@ export default class Player {
 		}, 100);
 	}
 
-	topOutCheck(tetris) {
-		if (this.arena.collide(this)) {
+	topOutCheck(tetris, arena) {
+		if (arena.collide(this)) {
 			this.sounds.playTopOut();
-			this.arena.clear();
+			arena.clear();
 
 			if (tetris.score > tetris.topScore) {
-				fetch('http://localhost:3001/new-topscore', {
-					method: 'put',
-					headers: {'Content-Type': 'application/json'},
-					body: JSON.stringify({
-						score: tetris.score
-					})
-				});
+				// fetch('http://localhost:3001/new-topscore', {
+				// 	method: 'put',
+				// 	headers: {'Content-Type': 'application/json'},
+				// 	body: JSON.stringify({
+				// 		score: tetris.score
+				// 	})
+				// });
+				tetris.topScore = tetris.score;
 			}
 
-			this.updateSessionStats(tetris);
+			this.updateSessionStats(tetris, arena);
 
 			tetris.endGame = true;
+			this.calcFinalStats();
+			tetris.levelSelect();
 
 			tetris.lineCounter = 0;
 			tetris.levelUpCounter = 0;
 			tetris.dropCounter = 0;
-			tetris.dropInterval = tetris.levelSpeed(48);
+			tetris.dropInterval = tetris.levelSpeed(47);
 
 			this.droughtCount = 0;
 			this._droughtCount = 0;
@@ -381,7 +368,9 @@ export default class Player {
 
 			setTimeout(function() {
 				tetris.endGame = false;
+				tetris.gameOver();
 				tetris.finalStats = true;
+				tetris.gameRecap();
 				tetris.gameStart = false;
 			}, 5000);
 
@@ -431,14 +420,14 @@ export default class Player {
 		}
 	}
 
-	updateSessionStats(tetris) {
+	updateSessionStats(tetris, arena) {
 			if (tetris.score > tetris.bestSessionScore) {
 				tetris.bestSessionScore = tetris.score;
 			}
 
-			if (this.arena.tetrisRate > this.arena.bestTetrisRate &&
+			if (arena.tetrisRate > arena.bestTetrisRate &&
 				tetris.lineCounter >= 10) {
-				this.arena.bestTetrisRate = this.arena.tetrisRate;
+				arena.bestTetrisRate = arena.tetrisRate;
 			}
 
 			//Calculate Score Average------------------------
@@ -453,12 +442,13 @@ export default class Player {
 			//Calculate Tetris Rate Average------------------
 
 			if (tetris.lineCounter >= 10) {
-				this.arena.tetRateArray.push(this.arena.tetrisRate);
+				arena.tetRateArray.push(arena.tetrisRate);
 
 			}
-			if (this.arena.tetRateArray.length > 0) {
-				const num = this.arena.tetRateArray.reduce((a, b) => a + b, 0);
-				this.arena.avgTetrisRate = Number((num / this.arena.tetRateArray.length).toFixed(1));
+
+			if (arena.tetRateArray.length > 0) {
+				const num = arena.tetRateArray.reduce((a, b) => a + b, 0);
+				arena.avgTetrisRate = Number((num / arena.tetRateArray.length).toFixed(1));
 			}
 
 			//Calculate Line Clear Average------------------

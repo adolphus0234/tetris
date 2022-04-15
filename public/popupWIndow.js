@@ -23,13 +23,6 @@ export default class PopUp {
 		this.y = 50;
 
 		this.open = false;
-
-		const loop = (time = 0) => {
-			this.update(time);
-			requestAnimationFrame(loop);
-		}
-		
-		loop();
 	}
 
 	currentSession() {

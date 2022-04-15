@@ -1,15 +1,15 @@
+-rename booleans in player class and arena class
+
+-add more comments to explain code is gamePad file
+
+-move global constants into popupWindow class
+
 -fix alignment of game recap screen
 -adjust look of session stats screen
 
--fix bug on level 29 (piece randomly changes - could be reset function delay)
+-add comments to CSS to break up sections (or create separate pages);
 
 -build proper music menu eventually
 
--code refactor!!!
->apply array method with other counters or stats
->add notation or tidy up any current notation if needed;
->player class still needs a bit of work
+-eventually bootstrap appearance of tetris interface
 
--add comments to CSS to break up sections (or create separate pages);
-
--add next block toggle 'on' or 'off'

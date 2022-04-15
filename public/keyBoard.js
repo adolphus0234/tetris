@@ -13,6 +13,7 @@ export default class KeyBoard {
 			if (event.code === "Space" 
 				&& event.repeat === false) {
 				pauseGame(this.tetris);
+				this.tetris.music();
 			}
 		}
 		event.preventDefault();
@@ -22,7 +23,15 @@ export default class KeyBoard {
 		if (event.code === "ShiftLeft"
 		 && event.repeat === false) {
 			if (this.tetris.paused === true) {
-				reset(this.tetris);
+				let that = this;
+				setTimeout(function() {
+					reset(that.tetris);
+				}, 100);			
+			}
+
+			if (this.tetris.paused === false) {
+				toggleNextBox(this.tetris);
+				this.tetris.gUI.drawStaticGUI();
 			}
 		}
 	}
@@ -55,6 +64,10 @@ export default class KeyBoard {
 						that.tetris.player.droughtArray = [];
 						that.tetris.finalStats = false;
 						that.tetris.startScreen = true;
+						that.tetris.gameOver();
+						that.tetris.gameRecap();
+						that.tetris.levelSelect();
+						that.tetris.tetrisScore();
 					}, 100); 
 				}	
 			}
@@ -64,7 +77,7 @@ export default class KeyBoard {
 				this.tetris.sounds.playSelectLevel();
 				this.tetris.level = this.tetris.level - 1;
 				this.tetris.levelColorCycle = this.tetris.levelColorCycle - 1;
-
+				
 				if (this.tetris.level < 0 && 
 					this.tetris.levelColorCycle < 0) {
 					this.tetris.level = 0;
@@ -75,12 +88,14 @@ export default class KeyBoard {
 					this.tetris.levelColorCycle = 19;
 				}
 
+				this.tetris.levelSelect();
+
 			} else if (event.code === 'ArrowRight') {
 				
 				this.tetris.sounds.playSelectLevel();
 				this.tetris.level = this.tetris.level + 1;
 				this.tetris.levelColorCycle = this.tetris.levelColorCycle + 1;
-
+				
 				if (this.tetris.levelColorCycle > 19) {
 					this.tetris.levelColorCycle = 0;
 				}
@@ -89,18 +104,32 @@ export default class KeyBoard {
 					this.tetris.level = 29;
 					this.tetris.levelColorCycle = 9;
 				}
+
+				this.tetris.levelSelect();
+
 			} else if (event.code === "Space"
 				    && event.repeat === false) {
 
 				player.statCounts.fill(0);
 
-				this.tetris.n = Math.floor(Math.random() * this.tetris.gameMusic.t);
-				
+				this.tetris.randomIndex = Math.floor(Math.random() * this.tetris.gameMusic.totalTracks);
 				this.tetris.sounds.playSelectPause();
 				let that = this;
 				setTimeout(function() {
 					that.tetris.startScreen = false;
+					that.tetris.levelSelect();
+					that.tetris.levelColor();
+					that.tetris.tetrisScore();
+					that.tetris.gpDetect();
+					that.tetris.music();
 				}, 200);
+				setTimeout(function() {
+					//that.tetris.gUI.drawStaticGUI();
+					that.tetris.tetrisScore();
+				}, 220);
+				// setTimeout(function() {
+				// 	that.tetris.tetrisScore();
+				// }, 250);
 			}
 		}
 		event.preventDefault();	
@@ -110,7 +139,7 @@ export default class KeyBoard {
 		const player = this.tetris.player;
 
 		if (!this.tetris.paused && !this.tetris.startScreen 
-			&& !player.dD && !this.tetris.arena.rC
+			&& !player.dD && !this.tetris.arena.rowClear
 			&& !this.tetris.endGame) {
 			if (event.code === 'ArrowLeft') {
 				player.moveLeft();
@@ -155,6 +184,7 @@ export function reset(tetris) {
 			}
 
 			tetris.arena.clear();
+			tetris.arena.clear_2();
 			tetris.score = 0;
 			tetris.lineCounter = 0;
 			tetris.levelUpCounter = 0;
@@ -163,6 +193,7 @@ export function reset(tetris) {
 			tetris.dropInterval = 0;
 		
 			player.droughtCount = 0;
+			player._droughtCount = 0;
 			tetris.tetrisClear = 0;
 			tetris.totalTetrisLines = 0;
 			tetris.totalRowClears = 0;
@@ -181,14 +212,28 @@ export function reset(tetris) {
 			tetris.firstPause = true;
 
 			tetris.startScreen = true;
+ 
+			setTimeout(function() {
+				tetris.music();
+				tetris.levelSelect();
+				tetris.tetrisScore();
+			}, 50);
+			
 }
 
 function togglePause(tetris) {
 	tetris.paused = !tetris.paused;
 }
 
+export function toggleNextBox(tetris) {
+	tetris.hideNextBox = !tetris.hideNextBox;
+}
+
 export function pauseGame(tetris) {
-	tetris.sounds.playSelectPause();
+	if (!tetris.paused) {
+		tetris.sounds.playPause();
+	}
+	
 	togglePause(tetris);
 }
 

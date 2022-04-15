@@ -10,8 +10,17 @@ export default class MusicBoard {
 						   tetrisTrack_2,
 						   tetrisTrack_3,
 						   tetrisTrack_4,
-						   tetrisTrack_5 ];
-		this.t = 5;
+						   tetrisTrack_5 
+						];
+
+		this.songLength = [ 180000, //track 1
+							180000, //track 2
+							180000, //track 3
+							180000, //track 4 
+							180000 	//track 5 
+						];
+						   
+		this.totalTracks = this.trackList.length;
 	}
 
 	playTrack(music) {

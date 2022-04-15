@@ -1,7 +1,5 @@
 import Animation from './animation.js';
-import { animRgb } from './tetris.js';
-
-const animation = new Animation();
+import { animRgb } from './animation.js'; 
 
 //Global Variables----------
 
@@ -9,16 +7,30 @@ let rowCounter = 0;
 let rowsCleared = 0;
 
 export default class Arena {
-	constructor(w, h, context, sound_board, dom) {
+	constructor(width, height, sound_board, gui) {
+
+		//ARENA MATRICES---------------------------
+
 		const matrix = [];
-		while (h--) {
-			matrix.push(new Array(w).fill(0));
+		const matrix_2 = [];
+		while (height--) {
+			matrix.push(new Array(width).fill(0));
+			matrix_2.push(new Array(width).fill(0));
 		}
+
 		this.matrix = matrix;
+		this.matrix_2 = matrix_2;
+
+		//OBJECTS----------------------------------
+
 		this.sounds = sound_board;
-		this.dom = dom;
-		this.rC = false;
-		this.tRC = false;
+		this.animation = new Animation();
+		this.gUI = gui;
+
+		//VARIABLES--------------------------------
+
+		this.rowClear = false;
+		this.tetrisRowClear = false;
 
 		this.tetrisRate = 0;
 		this.bestTetrisRate = 0;
@@ -27,13 +39,6 @@ export default class Arena {
 		this.tetRateArray = [];
 
 		this.playerTendencies = [0, 0, 0];
-
-		const slowFlashLoop = (time = 0) => {
-			this.droughtFlash(time / 500);
-			requestAnimationFrame(slowFlashLoop);
-		}
-
-		slowFlashLoop();
 	}
 
 	checkPlayerTendency(player) {
@@ -57,8 +62,12 @@ export default class Arena {
 		this.matrix.forEach(row => row.fill(0));
 	}
 
+	clear_2() {
+		this.matrix_2.forEach(row => row.fill(0));
+	}
+
 	clearAnim(y) {
-		animation.clearAnimation(this.matrix, y);
+		this.animation.clearAnimation(this.matrix, y);
 	}
 
 	collide(player) {
@@ -77,11 +86,7 @@ export default class Arena {
 	}
 
 	curtainDrop() {
-		animation.curtainAnime(this.matrix);
-	}
-
-	droughtFlash(time) {
-		this.dom.i_drought.style.color = animRgb(255, 50, 0, time, 3);
+		this.animation.curtainAnime(this.matrix_2, this.gUI);
 	}
 
 	merge(player) {
@@ -113,12 +118,12 @@ export default class Arena {
 					}
 
 			rowCounter++		
-			this.rC = true;
+			this.rowClear = true;
 			this.clearAnim(y);
 		}
 
 		if (rowCounter === 4) {	
-			this.tRC = true;
+			this.tetrisRowClear = true;
 			this.sounds.playRowTetris();
 			tetris.runTetrisFlash();	
 		} else if (rowCounter > 0 && rowCounter < 4) {
@@ -144,85 +149,73 @@ export default class Arena {
 			tetris.levelUpCounter++
 		}
 
-		let that = this;
-
-		setTimeout(that.rowCapture, 200);
+		this.rowCapture();
+		tetris.tetrisScore();
+		tetris.levelUp();
 	}
 
 	updateInGameStatus(tetris, player) {
+
+		this.tetrisRate = (tetris.totalTetrisLines / tetris.totalRowClears) * 100 | 0;
+		this.gUI.lineCountLabel.text = `LINES: ${tetris.lineCounter}`;
+
 		if (!tetris.startScreen) {
-			this.dom.current_level.innerText = `LEVEL: `;
-			this.dom.current_level_num.innerText = `${tetris.level}`.padStart(2, '0');
-			this.dom.t_rate.innerText = `TET RATE: ${this.tetrisRate}%`;
-			this.dom.i_drought.innerText = `'I' DROUGHT: ${player.droughtCount}`;
+			this.gUI.levelText.text = `${tetris.level}`.padStart(2, '0');
+			this.gUI.tetrisRateLabel.text = `TET RATE: ${this.tetrisRate}%`;
+			this.gUI.droughtLabel.text = `′I′ DROUGHT: ${player.droughtCount}`;		
+			
 		} else if (tetris.startScreen) {
-			this.dom.current_level.innerText = `LEVEL: `;
-			this.dom.current_level_num.innerText = `--`;
-			this.dom.t_rate.innerText = `TET RATE: 0%`;
-			this.dom.i_drought.innerText = `'I' DROUGHT: 0`;
+			this.gUI.levelText.text = `--`;
+			this.gUI.tetrisRateLabel.text = `TET RATE: 0%`;
+			this.gUI.droughtLabel.text = `′I′ DROUGHT: 0`;
 		}
 
-		if (player._droughtCount === 14) {
-			player.totalDroughts = player.totalDroughts + 1;
-		}
-	
-		if (player.droughtCount >= 14) {
-			this.dom.i_drought.style.color = this.droughtFlash();
-			player._droughtCount = 0;
-		} else {
-			this.dom.i_drought.style.color = 'green';
-		}
+		this.gUI.tetrisRateLabel.color = this.tetrisRate >= 25 ? 'green' : 'red';
 
-		if (this.tetrisRate >= 25) {
-			this.dom.t_rate.style.color = 'green';
-		} else {
-			this.dom.t_rate.style.color = 'red';
-		}
+		this.gUI.drawStaticGUI();
+
 	}
 
 	updateScore(tetris, player) {
 		if (rowsCleared === 4) {
-			this.rC = true;
+			this.rowClear = true;
 			tetris.score = tetris.score + (1200 * (tetris.level + 1));
 			tetris.tetrisClear = tetris.tetrisClear + 1;
 			tetris.totalRowClears = tetris.totalRowClears + 4;
 			tetris.totalTetrisLines = tetris.totalTetrisLines + 4;
 			this.resetRowCount();
 		} else if (rowsCleared === 3) {
-			this.rC = true;
+			this.rowClear = true;
 			tetris.score = tetris.score + (300 * (tetris.level + 1));
 			tetris.totalRowClears = tetris.totalRowClears + 3;
 			tetris.tripleRowClear = tetris.tripleRowClear + 1;
 			this.resetRowCount();
 		} else if (rowsCleared === 2) {
-			this.rC = true;
+			this.rowClear = true;
 			tetris.score = tetris.score + (100 * (tetris.level + 1));
 			tetris.totalRowClears = tetris.totalRowClears + 2;
 			tetris.doubleRowClear = tetris.doubleRowClear + 1;
 			this.resetRowCount();
 		} else if (rowsCleared === 1) {
-			this.rC = true;
+			this.rowClear = true;
 			tetris.score = tetris.score + (40 * (tetris.level + 1));
 			tetris.totalRowClears = tetris.totalRowClears + 1;
 			tetris.singleRowClear = tetris.singleRowClear + 1;
 			this.resetRowCount();
-		}
+		}	
 
-		this.tetrisRate = (tetris.totalTetrisLines / tetris.totalRowClears) * 100 | 0;
+		this.gUI.scoreText.text = `${tetris.score}`.padStart(7, '0');
+		this.gUI.topScoreText.text = `${tetris.topScore}`.padStart(7, '0');	
 
-		this.dom.game_score.innerText = `${tetris.score}`.padStart(7, '0');
-		this.dom.top_score.innerText = `${tetris.topScore}`.padStart(7, '0');
-		this.dom.line_total.innerText = `LINES: ${tetris.lineCounter}`;
-
-		fetch('http://localhost:3001/topscore', {
-			method: 'get',
-			headers: {'Content-Type': 'application/json'},
-		})
-		.then(res => res.json())
-		.then(score => {
-			tetris.topScore = score;
-		});
-
+		// fetch('http://localhost:3001/topscore', {
+		// 	method: 'get',
+		// 	headers: {'Content-Type': 'application/json'},
+		// })
+		// .then(res => res.json())
+		// .then(score => {
+		// 	tetris.topScore = score;
+		// });
+		
 		this.updateInGameStatus(tetris, player);
 	}
 }

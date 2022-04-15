@@ -26,119 +26,126 @@ export default class Gamepad {
 			const D_PAD_RIGHT = gp.buttons[15].pressed;
 
 			if (this.tetris.startScreen === true) {
+
 				if (D_PAD_LEFT === false) {
-						p1 = 'press';
-						g1 = 'press';
-					}
+					p1 = 'press';
+					g1 = 'press';
+				}
 
-					if (D_PAD_RIGHT === false) {
-						p2 = 'press';
-						g2 = 'press';
-					}
+				if (D_PAD_RIGHT === false) {
+					p2 = 'press';
+					g2 = 'press';
+				}
 
-					if (D_PAD_LEFT === false &&
-						D_PAD_RIGHT === false) {
-						rate = 100;
-					}
+				if (D_PAD_LEFT === false &&
+					D_PAD_RIGHT === false) {
+					rate = 100;
+				}
 
-					if (D_PAD_LEFT === true) {
-						
-						setTimeout(function() {
-					 		g1 = 'holding';
-					 		rate = 100;
-					 	}, 266);
+				if (D_PAD_LEFT === true) {
+					
+					setTimeout(function() {
+				 		g1 = 'holding';
+				 		rate = 100;
+				 	}, 266);
 
-						if (p1 === 'press' || g1 === 'holding') {
-							this.tetris.sounds.playSelectLevel();
-							this.tetris.level = this.tetris.level - 1;
-							this.tetris.levelColorCycle = this.tetris.levelColorCycle - 1;
+					if (p1 === 'press' || g1 === 'holding') {
 
-							if (this.tetris.level < 0 && 
-								this.tetris.levelColorCycle < 0) {
-								this.tetris.level = 0;
-								this.tetris.levelColorCycle = 0;
-							}
+						this.tetris.sounds.playSelectLevel();
+						this.tetris.level = this.tetris.level - 1;
+						this.tetris.levelColorCycle = this.tetris.levelColorCycle - 1;
 
-							if (this.tetris.levelColorCycle < 0) {
-								this.tetris.levelColorCycle = 19;
-							}
-
-					 		p1 = 'holding';
-						}	
-					} else if (D_PAD_RIGHT === true) {
-						
-						setTimeout(function() {
-					 		g2 = 'holding';
-					 		rate = 100;
-					 	}, 266);
-
-						if (p2 === 'press' || g2 === 'holding') {
-							this.tetris.sounds.playSelectLevel();
-							this.tetris.level = this.tetris.level + 1;
-							this.tetris.levelColorCycle = this.tetris.levelColorCycle + 1;
-
-							if (this.tetris.levelColorCycle > 19) {
-								this.tetris.levelColorCycle = 0;
-							}
-
-							if (this.tetris.level > 29) {
-								this.tetris.level = 29;
-								this.tetris.levelColorCycle = 9;
-							}
-
-							p2 = 'holding';
-							
+						if (this.tetris.level < 0 && 
+							this.tetris.levelColorCycle < 0) {
+							this.tetris.level = 0;
+							this.tetris.levelColorCycle = 0;
 						}
+
+						if (this.tetris.levelColorCycle < 0) {
+							this.tetris.levelColorCycle = 19;
+						}
+
+						this.tetris.levelSelect();
+
+				 		p1 = 'holding';
 					}
+
+				} else if (D_PAD_RIGHT === true) {
+					
+					setTimeout(function() {
+				 		g2 = 'holding';
+				 		rate = 100;
+				 	}, 266);
+
+					if (p2 === 'press' || g2 === 'holding') {
+
+						this.tetris.sounds.playSelectLevel();
+						this.tetris.level = this.tetris.level + 1;
+						this.tetris.levelColorCycle = this.tetris.levelColorCycle + 1;
+						
+						if (this.tetris.levelColorCycle > 19) {
+							this.tetris.levelColorCycle = 0;
+						}
+
+						if (this.tetris.level > 29) {
+							this.tetris.level = 29;
+							this.tetris.levelColorCycle = 9;
+						}
+
+						this.tetris.levelSelect();
+
+						p2 = 'holding';
+					}
+				}
 			}
 
 			if (!this.tetris.paused && !this.tetris.startScreen 
 				&& !this.tetris.endGame && !this.tetris.finalStats) {
 
-					if (D_PAD_LEFT === false) {
-						p1 = 'press';
-						g1 = 'press';
+				if (D_PAD_LEFT === false) {
+					p1 = 'press';
+					g1 = 'press';
+				}
+
+				if (D_PAD_RIGHT === false) {
+					p2 = 'press';
+					g2 = 'press';
+				}
+
+				if (D_PAD_LEFT === false &&
+					D_PAD_RIGHT === false) {
+					rate = 68;
+				}
+
+				if (D_PAD_LEFT === true) {
+
+					setTimeout(function() {
+				 		g1 = 'holding';
+				 		rate = 100;
+				 	}, 266);
+
+					if (!player.dD && !this.tetris.arena.rC) {
+							if (p1 === 'press' || g1 === 'holding') {
+							player.moveLeft();
+					 		p1 = 'holding';
+						}	
 					}
+					
+				} else if (D_PAD_RIGHT === true) {
 
-					if (D_PAD_RIGHT === false) {
-						p2 = 'press';
-						g2 = 'press';
-					}
+					setTimeout(function() {
+				 		g2 = 'holding';
+				 		rate = 100;
+				 	}, 266);
 
-					if (D_PAD_LEFT === false &&
-						D_PAD_RIGHT === false) {
-						rate = 68;
-					}
-
-					if (D_PAD_LEFT === true) {
-
-						setTimeout(function() {
-					 		g1 = 'holding';
-					 		rate = 100;
-					 	}, 266);
-
-						if (!player.dD && !this.tetris.arena.rC) {
-								if (p1 === 'press' || g1 === 'holding') {
-								player.moveLeft();
-						 		p1 = 'holding';
-							}	
+					if (!player.dD && !this.tetris.arena.rC) {
+							if (p2 === 'press' || g2 === 'holding') {
+							player.moveRight();
+							p2 = 'holding';
 						}
-						
-					} else if (D_PAD_RIGHT === true) {
-
-						setTimeout(function() {
-					 		g2 = 'holding';
-					 		rate = 100;
-					 	}, 266);
-
-						if (!player.dD && !this.tetris.arena.rC) {
-								if (p2 === 'press' || g2 === 'holding') {
-								player.moveRight();
-								p2 = 'holding';
-							}
-						}
-						
 					}
+					
+				}
 			}
 			setTimeout(gameLoop, rate);
 		}
@@ -155,7 +162,8 @@ export default class Gamepad {
 
 			if (!this.tetris.paused && !this.tetris.startScreen 
 				&& !this.tetris.player.dD && !this.tetris.arena.rC 
-				&& !this.tetris.endGame && !this.tetris.finalStats) {		
+				&& !this.tetris.endGame && !this.tetris.finalStats) {
+
 				const gp = navigator.getGamepads()[e.gamepad.index];
 				const D_PAD_DOWN = gp.buttons[13].pressed;
 				const D_PAD_LEFT = gp.buttons[14].pressed;
@@ -184,15 +192,17 @@ export default class Gamepad {
 
 
 	gamepadRotate(e) {
-			const player = this.tetris.player;
+		const player = this.tetris.player;
 
-			let HOLDING_A_X = false;
-			let HOLDING_B_Y = false;
+		let HOLDING_A_X = false;
+		let HOLDING_B_Y = false;
 
 		const gameLoop = (time = 0) => {
+
 			if (!this.tetris.paused && !this.tetris.startScreen
 				&& !this.tetris.player.dD && !this.tetris.arena.rC
-				&& !this.tetris.endGame && !this.tetris.finalStats) {	
+				&& !this.tetris.endGame && !this.tetris.finalStats) {
+
 				const gp = navigator.getGamepads()[e.gamepad.index];
 				const A_BUTTON = gp.buttons[0].pressed;
 				const X_BUTTON = gp.buttons[2].pressed;
@@ -214,15 +224,13 @@ export default class Gamepad {
 					if (HOLDING_A_X === false) {
 						player.rotateLeft();
 						HOLDING_A_X = true;
-						// console.log('counter-clockwise')
 					}
 				} else if (B_BUTTON === true ||
 						   Y_BUTTON === true) {
-						if (HOLDING_B_Y === false) {
-							player.rotateRight();
-							HOLDING_B_Y = true;
-							// console.log('clockwise')
-						}
+					if (HOLDING_B_Y === false) {
+						player.rotateRight();
+						HOLDING_B_Y = true;
+					}
 				}
 			}
 			requestAnimationFrame(gameLoop);	
@@ -242,9 +250,11 @@ export default class Gamepad {
 			const BACK_BUTTON = gp.buttons[8].pressed;
 
 			if (this.tetris.finalStats === true) {
+
 				if (START_BUTTON === false) {
 					HOLDING_START = false;
 				}
+
 				if (START_BUTTON === true) {
 					if (HOLDING_START === false) {
 
@@ -267,6 +277,9 @@ export default class Gamepad {
 
 						this.tetris.finalStats = false;
 						this.tetris.startScreen = true;
+						this.tetris.gameOver();
+						this.tetris.levelSelect();
+						this.tetris.tetrisScore();
 							
 						HOLDING_START = true;
 					}
@@ -274,6 +287,7 @@ export default class Gamepad {
 			}
 
 			if (this.tetris.startScreen === true) {
+
 				if (START_BUTTON === false) {
 					HOLDING_START = false;
 				}
@@ -284,9 +298,11 @@ export default class Gamepad {
 						player.statCounts.fill(0);
 
 						this.tetris.n = Math.floor(Math.random() * this.tetris.gameMusic.t);
-
 						this.tetris.sounds.playSelectPause();
 						this.tetris.startScreen = false;
+						this.tetris.levelSelect();
+						this.tetris.levelColor();
+						this.tetris.tetrisScore();
 						
 						HOLDING_START = true;
 					}
@@ -312,7 +328,7 @@ export default class Gamepad {
 						reset(this.tetris);
 				}
 			}
-				requestAnimationFrame(gameLoop);
+			requestAnimationFrame(gameLoop);
 		}
 		gameLoop();
 	}
@@ -377,8 +393,7 @@ export default class Gamepad {
 						rate = 60;
 					}, 1000)
 				}
-			}
-				
+			}		
 			setTimeout(gameLoop, rate);
 		}
 		gameLoop();

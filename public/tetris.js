@@ -2,59 +2,46 @@ import Player from './player.js';
 import Arena from './arena.js';
 import SoundBoard from './sounds.js';
 import ColorHandler from './colorHandler.js';
-import DomRef from './domRef.js';
 
-export const animRgb = (r, g, b, time, f) => {
-	let c1 = Math.floor(Math.sin(time) * r / f) + r / 2;
-	let c2 = Math.floor(Math.sin(time) * g / f) + g / 2;
-	let c3 = Math.floor(Math.sin(time) * b / f) + b / 2;
-
-	return `rgb(${c1}, ${c2}, ${c3})`;
-}
-
-//Constants-------------------------
-
-const dom = new DomRef();
-const sounds = new SoundBoard();
-const lvl_color = new ColorHandler();
-
-const context = dom.canvas.getContext('2d');
-context.scale(20, 20);
-const context_next = dom.canvas_next.getContext('2d');
-context_next.scale(30, 30);
-const context_stat = dom.canvas_stat.getContext('2d');
-context_stat.scale(8, 8);
-
-const width = dom.canvas.width;
-const height = dom.canvas.height;
-const width_n = dom.canvas_next.width;
-const height_n = dom.canvas_next.height;
-const width_s = dom.canvas_stat.width;
-const height_s = dom.canvas_stat.height;
-
-//Global variables------------------
-
-let lastCount;
-let speedDec = 5;
-let gridCount = 0;
+import GUI from './GUI.js';
+import PopUp from './popupWindow.js';
+import { animRgb } from './animation.js';
 
 export default class Tetris {
 	constructor(music) {
 
-		this.arena = new Arena(10, 21, context, sounds, dom);
-		this.player = new Player(this, dom.canvas_next, dom.canvas_stat, sounds);
+		//OBJECTS------------------------------------------
 
-		this.level = 0;
+		this.gUI = new GUI(this);
+		this.pop_up = new PopUp(this);
+		this.sounds = new SoundBoard();
+		this.lvl_color = new ColorHandler();
+		this.gameMusic = music;
 
-		this.colors = lvl_color.colors[0][0];
-		this.colorsA = lvl_color.colors[0][1];
+		this.arena = new Arena(10, 21, this.sounds, this.gUI);
+		
+		this.player = new Player(this, this.gUI, this.sounds);
+		
+		//CANVAS/CONTEXT VARIABLES------------------------
+
+		this.canvas = document.querySelector('.tetris');
+		this.context = this.canvas.getContext('2d');
+		this.context.scale(20, 20);
+
+		this.width = this.canvas.width;
+		this.height = this.canvas.height;
+
+		//VARIABLES
+
+		this.innerBlockColorLayer = this.lvl_color.colors[0][0];
+		this.outerBlockColorLayer = this.lvl_color.colors[0][1];
 
 		this.dropCounter = 0;
 		this.dropInterval = 0;
 
 		this.score = 0;
 		this.topScore = 0;
-
+		
 		this.bestSessionScore = 0;
 		this.avgScore = 0;
 		this.scoreArray = [];
@@ -63,6 +50,7 @@ export default class Tetris {
 		this.avgLines = 0;
 		this.lineArray = [];
 
+		this.level = 0;
 		this.levelUpCounter = 0;
 		this.levelColorCycle = 0;
 
@@ -74,9 +62,9 @@ export default class Tetris {
 		this.totalRowClears = 0;
 		this.totalTetrisLines = 0;
 
-		this.n = 0;
+		this.randomIndex = 0;
 
-		//States-------------------------------
+		//STATES-------------------------------
 
 		this.paused = false;
 		this.firstPause = true;
@@ -84,185 +72,165 @@ export default class Tetris {
 		this.endGame = false;
 		this.finalStats = false;
 
+		this.hideNextBox = false;
+		this.pauseSwitch = true;
+
 		this.gamePadConnected = false;
 
-		//-------------------------------------
-
-		this.sounds = sounds;
-		this.gameMusic = music;
-
-		//Game Loop----------------------------
+		//GAME LOOP----------------------------
 
 		let lastTime = 0;
 		const deltaTime = 1/60 * 1000;
 
-		const gameLoop = (time = 0) => {
+		this._gameLoop = (time = 0) => {
 
+			//ADD LABELS HERE
+	
 			if (!this.paused && !this.startScreen
-				&& !this.endGame && !this.finalStats) {
+			&&  !this.endGame && !this.finalStats) {
 				this.update(deltaTime, time / 10);
-			} 
+			}
 
-			this.levelSelect(deltaTime);
-			this.gameRecap(deltaTime);
-			this.player.calcFinalStats(deltaTime);
-			this.music(deltaTime);
-			this.tetrisScore();
+			this.gUI.drawScreenAnimated(time);
+			this.gUI.drawGUIAnimated(time);
+
 			this.pauseScreen(deltaTime);
-			this.resetBlockDropCounter(deltaTime);
-			this.drawMatrix2(this.arena.matrix, {x: 0, y: 0}, this.context, time);
+			this.resetBlockDropCounter(deltaTime);			
 
-			requestAnimationFrame(gameLoop);
+			if (!this.startScreen
+			&&  !this.endGame
+			&&  !this.finalStats) {
+				this.pop_up.update(time);
+			}
+
+			requestAnimationFrame(this._gameLoop);
 			lastTime = time;
 		}
 
-		gameLoop();
+		//gameLoop();
+	}
 
-		//Flash Animation Loop------------------
-
-		const flashLoop = (millis) => {
-			this.tetrisFlash(millis / 10);
-			this.menuFlash(millis / 8);
-			this.slowFlash(millis / 700);
-			this.slowFlash2(millis/ 700);
-			requestAnimationFrame(flashLoop);
-		}
-
-		flashLoop();
+	run() {
+		this._gameLoop();
 	}
 
 	blockDropCounter(deltaTime) {
+		//CHANGE NAME
 		this.counterDelay(deltaTime);
 
+		let that = this;
+
 		if (this.dropCounter > this.dropInterval) {
-			this.player.drop(this, this.arena);
+			this.player.drop();
 		}
 		
-		if (this.arena.rC === true ||
+		if (this.arena.rowClear === true ||
 			this.player.dD === true) {
+
 			this.dropCounter = 0;
-			let that = this;
+
 			setTimeout(function() {
-				that.arena.rC = false;
-				that.arena.tRC = false;
+				that.arena.rowClear = false;
+				that.arena.tetrisRowClear = false;
 				that.dropCounter += (deltaTime - deltaTime);
 			}, 450);
 		}
 	}
 
-	clearFillFlash(x, y, offset, time) {
-		context.fillStyle = animRgb(255, 255, 255, time, 2);
-		context.fillRect(x + offset.x, 
-						 y + offset.y, 	
-						 1, 1);
-		context.strokeStyle = animRgb(255, 255, 255, time, 2);
-		context.lineWidth = 0.1;
-		context.strokeRect(x + offset.x, 
-						   y + offset.y, 	
-						   1, 1);
-	}
+	blockDropCounterFix(deltaTime) {
+		//CHANGE NAME
+		this.blockDropCounter = function() {
 
-	clearFillBlack(x, y, offset) {
-		context.fillStyle = 'black';
-		context.fillRect(x + offset.x, 
-						 y + offset.y, 	
-						 1, 1);
-		context.strokeStyle = 'black';
-		context.lineWidth = 0.1;
-		context.strokeRect(x + offset.x, 
-						   y + offset.y, 	
-						   1, 1);
+			let that = this;
+				
+			if (this.firstPause === true) {
+				this.dropCounter += (deltaTime - (deltaTime));
+
+				setTimeout(function() {
+					that.firstPause = false;
+				}, 1000);
+
+			} else if (this.firstPause === false) {
+				this.dropCounter += deltaTime;
+			}
+
+			if (this.dropCounter > this.dropInterval) {
+				this.player.drop(this, this.arena);
+			}
+			
+			if (this.arena.rowClear === true ||
+				this.player.dD === true) {
+
+				this.dropCounter = 0;
+
+				setTimeout(function() {
+					that.arena.rowClear = false;
+					that.arena.tetrisRowClear = false;
+					that.dropCounter += (deltaTime - deltaTime);
+				}, 450);
+			}
+		}
 	}
 
 	counterDelay(deltaTime) {
+		//RENAME - dropCounterStartDelay
 		let that = this;
 		setTimeout(function() {
-			that.dropCounter += deltaTime; 
+			that.dropCounter += deltaTime;
 		}, 1500);
 	}
 
-	curtain(x, y, offset) {
-		context.fillStyle = 'rgb(30, 30, 30)';
-		context.fillRect(x + offset.x, 
-							  y + offset.y, 1, 1);
-
-		context.fillStyle = 'rgb(60, 60, 60)';
-		context.fillRect(x + offset.x, 
-							  y + offset.y, 1, 0.5);
-
-		context.fillStyle = 'rgb(95, 95, 95)';
-		context.fillRect(x + offset.x, 
-							  y + offset.y, 1, 0.15);
-
-		context.fillStyle = 'rgb(10, 10, 10)';
-		context.fillRect(x + offset.x, 
-							  y + 0.8 + offset.y, 1, 0.15);
-	}
-
 	draw(time) {
-		//Draw Game Board and Player Block------------------------
+		//DRAW GAME BOARD
 
 		this.gameBgColor();
-		context.fillRect(0, 1, width, height - 1);
+		this.context.fillRect(0, 1, this.width, this.height - 1);
+
+		//DRAW PLAYER CONTROLLED BLOCK (CURRENT BLOCK)
 
 		if (!this.startScreen) {
-			this.drawMatrix(this.player.matrix, this.player.pos, context, time);
+			this.drawMatrix(this.player.matrix, this.player.pos, 1, this.context, time);
 		}
 
-		this.drawMatrix(this.arena.matrix, {x: 0, y: 0}, context, time);
+		//DRAW STATIC BLOCKS
 
-		context.fillStyle = 'rgb(25, 25, 25)';
-		context.fillRect(0, 0, width, 1);
+		this.drawMatrix(this.arena.matrix, {x: 0, y: 0}, 1, this.context, time);
 
-		//Draw Next Block--------------------------------------------
-
-		context_next.fillStyle = 'black';
-		context_next.fillRect(0, 0, width_n, height_n);
-
-		if (!this.startScreen) {
-			this.drawMatrix(this.player.upNext.matrix, this.player.upNext.pos, context_next);
-		}
-
-		//Draw Statistics---------------------------------------------
-
-		context_stat.fillStyle = 'black';
-		context_stat.fillRect(0, 0, width_s, height_s);
-		
-		this.player.drawStatBoard(this);
-		
+		this.context.fillStyle = 'rgb(25, 25, 25)';
+		this.context.fillRect(0, 0, this.width, 1);	
 	}
 
-	drawMatrix(matrix, offset, context, time) {
+	drawMatrix(matrix, offset, scale, context, time) {
 		matrix.forEach((row, y) => {
 			row.forEach((value, x) => {
 				if (value !== 0) {
-					context.fillStyle = this.colors[value];
-					context.fillRect(x + offset.x, 
-									 y + offset.y, 	
-									 1, 1);
+					context.fillStyle = this.innerBlockColorLayer[value];
+					context.fillRect(x * scale + offset.x, 
+									 y * scale + offset.y, 	
+									 1 * scale, 1 * scale);
 
 					context.strokeStyle = '#000';
-					context.lineWidth = 0.1;
-					context.strokeRect(x + offset.x, 
-									   y + offset.y, 	
-									   1, 1);
+					context.lineWidth = 0.1 * scale;
+					context.strokeRect(x * scale + offset.x, 
+									   y * scale + offset.y, 	
+									   1 * scale, 1 * scale);
 
-					context.strokeStyle = this.colorsA[value];
-					context.lineWidth = 0.1;
-					context.strokeRect(x + 0.1 + offset.x, 
-									   y + 0.1 + offset.y, 	
-									   0.8, 0.8);
+					context.strokeStyle = this.outerBlockColorLayer[value];
+					context.lineWidth = 0.14 * scale;
+					context.strokeRect((x + 0.1) * scale + offset.x, 
+									   (y + 0.1) * scale + offset.y, 	
+									    0.8 * scale, 0.8 * scale);
 
 					context.strokeStyle = '#fff';
-					context.lineWidth = 0.1;
-					context.strokeRect(x + 0.15 + offset.x, 
-									   y + 0.15 + offset.y, 	
-									   0.03, 0.03);
+					context.lineWidth = 0.1 * scale;
+					context.strokeRect((x + 0.15) * scale + offset.x, 
+									   (y + 0.15) * scale + offset.y, 	
+									    0.03 * scale, 0.03 * scale);
 					if (value === 9) {
-						if (this.arena.tRC === true) {
-							this.clearFillFlash(x, y, offset, time);
+						if (this.arena.tetrisRowClear === true) {
+							this.lineClearFillFlash(x, y, offset, time);
 						} else {
-							this.clearFillBlack(x, y, offset);
+							this.lineClearFillBlack(x, y, offset);
 						}
 						
 					}
@@ -271,107 +239,178 @@ export default class Tetris {
 		});
 	}
 
-	drawMatrix2(matrix, offset, context, time) {
+	drawMatrix2(matrix, offset, scale, context) {
+		//CURTAIN / SHUTTER ROW
 		matrix.forEach((row, y) => {
 			row.forEach((value, x) => {
-					if (value === 8) {
-						this.curtain(x, y, offset);
-					}
+				if (value === 8) {
+					context.fillStyle = 'rgb(30, 30, 30)';
+					context.fillRect(x * scale + offset.x, 
+										  y * scale + offset.y, 
+										  1 * scale, 1 * scale);
+
+					context.fillStyle = 'rgb(60, 60, 60)';
+					context.fillRect(x * scale + offset.x, 
+										  y * scale + offset.y, 
+										  1 * scale, 0.5 * scale);
+
+					context.fillStyle = 'rgb(95, 95, 95)';
+					context.fillRect(x * scale + offset.x, 
+										  y * scale + offset.y, 
+										  1 * scale, 0.15 * scale);
+
+					context.fillStyle = 'rgb(10, 10, 10)';
+					context.fillRect(x * scale + offset.x, 
+										  (y + 0.8) * scale + offset.y, 
+										   1 * scale, 0.15 * scale);
+				}
 			});
 		});
 	}
 
 	gameBgColor() {
-		context.fillStyle = 'black';
+		this.context.fillStyle = 'black';
 	}
 
 	gameOver() {
-		if (this.endGame === true) {
-			dom.g_o.innerText = 'GAMEOVER';
-		} else {
-			dom.g_o.innerText = '';
-		}
+		this.gUI.gameOverText.text = this.endGame ? 'GAMEOVER' : '';
+		this.gUI.drawStaticScreen();
 	}
 
 	gameRecap() {
+
+		this.line_1;
+		this.line_2;
+		this.line_3;
+		this.line_4;
+		this.line_5;
+		this.line_6;
+		this.line_7;
+		this.line_8;
+		this.line_9;
+
+		let that = this;
+
 		if (this.finalStats === true) {
 
+			//SHOW RECAP SCREEN STATS
+			
 			this.arena.clear();
+			this.arena.clear_2();
 
-			let that = this;
+			this.context.fillStyle = 'rgb(0, 0, 0)';
+			this.context.fillRect(0, 1, this.width, this.height - 1);
 
-			context.fillStyle = 'rgb(0, 0, 0)';
-			context.fillRect(0, 1, width, height - 1);
+			this.gUI.recapHeading.text = `~ Recap ~`;
+			this.gUI.drawStaticScreen();
 
-			dom.recap_head.innerText = `~ Recap ~`;
-
-			setTimeout(function() {
-				dom.single_clr.innerText = `SINGLE: ${that.singleRowClear}`;
+			this.line_1 = setTimeout(function() {
+				that.gUI.recapLine_1.text = `SINGLE: ${that.singleRowClear}`;
+				that.gUI.drawStaticScreen();
 			}, 500);
-			setTimeout(function() {
-				dom.double_clr.innerText = `DOUBLE: ${that.doubleRowClear}`;
-			}, 1000);
-			setTimeout(function() {
-				dom.triple_clr.innerText = `TRIPLE: ${that.tripleRowClear}`;
-			}, 1500);
-			setTimeout(function() {
-				dom.tetris_clr.innerText = `TETRIS: ${that.tetrisClear}`;
-			}, 2000);
-			setTimeout(function() {
-				dom.tet_rate.innerText = `TET RT: ${that.arena.tetrisRate}%`;
-			}, 2500);
-			setTimeout(function() {
-				dom.d_total.innerText = `DT TOT: ${that.player.totalDroughts}`;
-			}, 3000);
-			setTimeout(function() {
-				dom.d_avg.innerText = `DT AVG: ${that.player.avgDrought}`;
-			}, 3500);
-			setTimeout(function() {
-				dom.d_max.innerText = `DT MAX: ${that.player.maxDrought}`;
-			}, 4000);
-			setTimeout(function() {
-				if (that.gamePadConnected === true) {
-					dom.press_start.innerText = `PRESS START`;
-				} else {
-					dom.press_start.innerText = `PRESS SPACE`;
-				}
-				
-				that.slowFlash();
-			}, 4500);		
-		}
 
-		if (!this.finalStats) {
-			dom.recap_head.innerText = ``;
-			dom.single_clr.innerText = ``;
-			dom.double_clr.innerText = ``;
-			dom.triple_clr.innerText = ``;
-			dom.tetris_clr.innerText = ``;
-			dom.tet_rate.innerText = ``;
-			dom.d_total.innerText = ``;
-			dom.d_avg.innerText = ``;
-			dom.d_max.innerText = ``;
-			dom.press_start.innerText = ``;
+			this.line_2 = setTimeout(function() {
+				that.gUI.recapLine_2.text = `DOUBLE: ${that.doubleRowClear}`;
+				that.gUI.drawStaticScreen();
+			}, 1000);
+
+			this.line_3 = setTimeout(function() {
+				that.gUI.recapLine_3.text = `TRIPLE: ${that.tripleRowClear}`;
+				that.gUI.drawStaticScreen();
+			}, 1500);
+
+			this.line_4 = setTimeout(function() {
+				that.gUI.recapLine_4.text = `TETRIS: ${that.tetrisClear}`;
+				that.gUI.drawStaticScreen();
+			}, 2000);
+
+			this.line_5 = setTimeout(function() {
+				that.gUI.recapLine_5.text = `TET RT: ${that.arena.tetrisRate}%`;
+				that.gUI.drawStaticScreen();
+			}, 2500);
+
+			this.line_6 = setTimeout(function() {
+				that.gUI.recapLine_6.text = `DT TOT: ${that.player.totalDroughts}`;
+				that.gUI.drawStaticScreen();
+			}, 3000);
+
+			this.line_7 = setTimeout(function() {
+				that.gUI.recapLine_7.text = `DT AVG: ${that.player.avgDrought}`;
+				that.gUI.drawStaticScreen();
+			}, 3500);
+
+			this.line_8 = setTimeout(function() {
+				that.gUI.recapLine_8.text = `DT MAX: ${that.player.maxDrought}`;
+				that.gUI.drawStaticScreen();
+			}, 4000);
+
+			this.line_9 = setTimeout(function() {
+				if (that.gamePadConnected === true) {
+					that.gUI.press_space.text = `PRESS START`;
+					that.gUI.drawStaticScreen();
+				} else {
+					that.gUI.press_space.text = `PRESS SPACE`;
+					that.gUI.drawStaticScreen();
+				}				
+			}, 4500);
+
+		} else {
+
+			//CLEAR RECAP SCREEN STATS && CANCEL TIMEOUTS
+
+			clearTimeout(that.line_1);
+			clearTimeout(that.line_2);
+			clearTimeout(that.line_3);
+			clearTimeout(that.line_4);
+			clearTimeout(that.line_5);
+			clearTimeout(that.line_6);
+			clearTimeout(that.line_7);
+			clearTimeout(that.line_8);
+			clearTimeout(that.line_9);
+
+			this.gUI.recapHeading.text = ``;
+			this.gUI.recapLine_1.text = ``;
+			this.gUI.recapLine_2.text = ``;
+			this.gUI.recapLine_3.text = ``;
+			this.gUI.recapLine_4.text = ``;
+			this.gUI.recapLine_5.text = ``;
+			this.gUI.recapLine_6.text = ``;
+			this.gUI.recapLine_7.text = ``;
+			this.gUI.recapLine_8.text = ``;
+			this.gUI.press_space.text = ``;
 		}
 	}
 
 	gpDetect() {
+		const { gp_detect } = this.gUI;
+
 		if (this.gamePadConnected === true) {
-			dom.gp_connect.innerText = 'A gamepad connected...';
+
+			gp_detect.text = 'A gamepad connected...';			
 			setTimeout(function() {
-				dom.gp_connect.innerText = '';
+				gp_detect.text = '';
 			}, 7000)
+
 		} else if (this.gamePadConnected === false) {
-			dom.gp_connect.innerText = 'A gamepad disconnected...';
+
+			gp_detect.text = 'A gamepad disconnected...';
 			setTimeout(function() {
-				dom.gp_connect.innerText = '';
+				gp_detect.text = '';
 			}, 7000)
+		}
+
+		if (!this.startScreen) {
+			gp_detect.text = '';
 		}
 	}
 
 	levelUp() {
 		if (this.levelUpCounter >= 10 && this.lineCounter >= (this.level * 10 + 10)) {
+
+			let that = this;
+
 			setTimeout(function() {
-				sounds.playLevelUpAlert();
+				that.sounds.playLevelUpAlert();
 			}, 300);
 			
 			this.level = this.level + 1;
@@ -381,12 +420,14 @@ export default class Tetris {
 			if (this.levelColorCycle > 19) {
 				this.levelColorCycle = 0;
 			}
+			this.levelColor();
 		}
 	}
 
 	levelColor() {
-		this.colors = lvl_color.colors[this.levelColorCycle][0];
-		this.colorsA = lvl_color.colors[this.levelColorCycle][1];
+		this.innerBlockColorLayer = this.lvl_color.colors[this.levelColorCycle][0];
+		this.outerBlockColorLayer = this.lvl_color.colors[this.levelColorCycle][1];
+		this.gUI.drawStaticGUI();
 	} 
 
 	levelSpeed(frameRate) {
@@ -409,38 +450,41 @@ export default class Tetris {
 			frameRate = 6;
 			return frameRate * 16.66666666666667;
 		} else {
-			return (frameRate - (this.level * speedDec)) * 16.66666666666667;
+			return (frameRate - (this.level * 5)) * 16.66666666666667;
 		}	
 	}
 
-	levelSelect(deltaTime) {
+	levelSelect() {
 		if (this.startScreen === true) {
-			this.gameBgColor();
-			context.fillRect(0, 1, width, height - 1);
-			context_next.fillStyle = 'black';
-			context_next.fillRect(0, 0, width_n, height_n);
-			context_stat.fillStyle = 'black';
-			context_stat.fillRect(0, 0, width_s, height_s);
 
-			dom.levelNum.innerText = `${this.level}`.padStart(2, '0');
-			dom.levelHeading.innerText = 'SELECT LEVEL:';
-			this.menuFlash();
+			this.arena.clear();
+
+			this.gUI.drawStaticScreen();
+			this.gUI.drawStaticGUI();
+			
+			this.context.fillStyle = "black";
+			this.context.fillRect(0, 1, this.width, this.height - 1);
 		}
 		
 
 		if (!this.startScreen) {
-			dom.levelNum.innerText = '';
-			dom.levelHeading.innerText = '';
+			this.gUI.clearScreen();
 		}
 
+		//GAMEOVER SEQUENCE (move to separate function)--------------------
+
 		if (this.endGame === true) {
+
 			let that = this;
-			context.fillStyle = 'rgb(30, 0, 0)';
-			context.fillRect(0, 1, width, height - 1);
+
+			this.context.fillStyle = 'rgb(30, 0, 0)';
+			this.context.fillRect(0, 1, this.width, this.height - 1);
+
+			this.music();
 
 			setTimeout(function() {
 				that.arena.curtainDrop();
-			}, 300)
+			}, 300);
 				
 			setTimeout(function() {
 				that.gameOver();
@@ -448,87 +492,112 @@ export default class Tetris {
 		}
 	}
 
-	menuFlash(time) {
-		if (this.startScreen) {
-			dom.levelNum.style.color = animRgb(255, 50, 0, time, 3);
-		}
+	lineClearFillFlash(x, y, offset, time) {
+		this.context.fillStyle = animRgb(255, 255, 255, time, 2);
+		this.context.fillRect(x + offset.x, 
+						 	  y + offset.y, 	
+						 	  1, 1);
+
+		this.context.strokeStyle = animRgb(255, 255, 255, time, 2);
+		this.context.lineWidth = 0.1;
+		this.context.strokeRect(x + offset.x, 
+						   		y + offset.y, 	
+						   		1, 1);
 	}
 
-	//-------------------------------------
+	lineClearFillBlack(x, y, offset) {
+		this.context.fillStyle = 'black';
+		this.context.fillRect(x + offset.x, 
+						 	  y + offset.y, 	
+						 	  1, 1);
+
+		this.context.strokeStyle = 'black';
+		this.context.lineWidth = 0.1;
+		this.context.strokeRect(x + offset.x, 
+						  	    y + offset.y, 	
+						   		1, 1);
+	}
 
 	music() {
-		if(!this.startScreen && !this.paused
-			&& !this.endGame && !this.finalStats) {
-			this.gameMusic.playTrack(this.gameMusic.trackList[this.n])
+		this.elapseTimer;
+		this.songTimer;
+
+		if (!this.startScreen && !this.paused
+		&&  !this.endGame && !this.finalStats) {
+			
+			this.gameMusic.playTrack(this.gameMusic.trackList[this.randomIndex]);
+			this.songTimer = this.gameMusic.songLength[this.randomIndex] + 3000;
+
+			let that = this;
+
+			//TRACKING TIME ELAPSED IN SELECTED SONG
+
+			this.elapseTimer = setInterval(function() {
+				that.songTimer -= 1000/60;
+
+				if (that.songTimer < 0) {
+					that.songTimer = that.gameMusic.songLength[that.randomIndex] + 3000;
+					that.gameMusic.stopTrack(that.gameMusic.trackList[that.randomIndex]);
+					that.gameMusic.playTrack(that.gameMusic.trackList[that.randomIndex]);
+				}
+
+			}, 1000/60);
 		} 
 
 		if (this.paused) {
-			this.gameMusic.pauseTrack(this.gameMusic.trackList[this.n])
+			this.gameMusic.pauseTrack(this.gameMusic.trackList[this.randomIndex]);
+			clearInterval(this.elapseTimer);
 		}
 
 		if (this.startScreen || this.endGame || this.finalStats) {
-			this.gameMusic.stopTrack(this.gameMusic.trackList[this.n])
+			this.gameMusic.stopTrack(this.gameMusic.trackList[this.randomIndex]);
+			clearInterval(this.elapseTimer);
+			this.songTimer = this.gameMusic.songLength[this.randomIndex] + 3000;
 		}
 	}
-
-	//-------------------------------------
 
 	pauseScreen(deltaTime) {
 		if (this.paused === true && !this.endGame
 		&& !this.finalStats && !this.startScreen) {
 
-				dom.pausedGame.innerText = 'PAUSED';
-				
-				this.blockDropCounter = function() {
-					
-					if (this.firstPause === true) {
-						this.dropCounter += (deltaTime - (deltaTime));
-						let that = this;
-						setTimeout(function() {
-							that.firstPause = false;
-						}, 1000);
-
-					} else if (this.firstPause === false) {
-						this.dropCounter += deltaTime;
-					}
-
-					if (this.dropCounter > this.dropInterval) {
-						this.player.drop(this, this.arena);
-					}
-					
-					if (this.arena.rC === true 
-						|| this.player.dD === true) {
-						this.dropCounter = 0;
-						let that = this;
-						setTimeout(function() {
-							that.arena.rC = false;
-							that.arena.tRC = false;
-							that.dropCounter += (deltaTime - deltaTime);
-						}, 450);
-					}
-				}
-			} else {
-
-				dom.pausedGame.innerText = '';
+			if (this.pauseSwitch === true) {
+				this.gUI.drawStaticScreen();
+				this.pauseSwitch = false;
 			}
+			
+			this.blockDropCounterFix(deltaTime);
+
+		} else {
+
+			if (this.pauseSwitch === false) {
+				this.gUI.clearScreen();
+				this.pauseSwitch = true;
+			}
+			
+		}
 	}
 
 	resetBlockDropCounter(deltaTime) {
+		//CHANGE NAME
 		if (this.startScreen === true) {
+
 			this.blockDropCounter = function() {
 				this.counterDelay(deltaTime);
+
+				let that = this;
 				
 				if (this.dropCounter > this.dropInterval) {
-					this.player.drop(this, this.arena);
+					this.player.drop();
 				}
 				
-				if (this.arena.rC === true
-					|| this.player.dD === true) {
+				if (this.arena.rowClear === true || 
+					this.player.dD === true) {
+
 					this.dropCounter = 0;
-					let that = this;
+
 					setTimeout(function() {
-						that.arena.rC = false;
-						that.arena.tRC = false;
+						that.arena.rowClear = false;
+						that.arena.tetrisRowClear = false;
 						that.dropCounter += (deltaTime - deltaTime);
 					}, 450);
 				}
@@ -545,21 +614,13 @@ export default class Tetris {
 
 		setTimeout(function() {
 			that.gameBgColor = function() {
-			context.fillStyle = 'black';
+				that.context.fillStyle = 'black';
 			}
 		}, 350)
 	}
 
-	slowFlash(time) {
-		dom.press_start.style.color = animRgb(255, 255, 255, time, 2);	
-	}
-
-	slowFlash2(time) {
-		dom.gp_connect.style.color = animRgb(255, 255, 255, time, 2.5);
-	}
-
 	tetrisFlash(time) {
-		context.fillStyle = animRgb(255, 255, 255, time, 2);
+		this.context.fillStyle = animRgb(255, 255, 255, time, 2);
 	}
 
 	tetrisScore() {
@@ -572,15 +633,13 @@ export default class Tetris {
 	
 		this.blockDropCounter(deltaTime);
 		this.player.update(deltaTime);
-		
-		this.levelUp();
-		this.levelColor()
+
 		this.draw(time);
 
-		this.dropInterval = this.levelSpeed(48);
+		if (this.arena.tetrisRowClear === true) {
+			this.tetrisFlash(time);
+		}
 
-		this.tetrisFlash();
-
-		console.log(this.player.totalDroughts)
+		this.dropInterval = this.levelSpeed(47);
 	}
 }
