@@ -1,5 +1,5 @@
 import { reset, pauseGame, openFullscreen, 
-		 closeFullscreen, toggleNextBox } from './keyBoard.js';
+		 closeFullscreen, toggleNextBox } from './KeyBoard.js';
 
 //Gamepad Events=====================================================//
 

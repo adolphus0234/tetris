@@ -4,7 +4,7 @@ import SoundBoard from './sounds.js';
 import ColorHandler from './colorHandler.js';
 
 import GUI from './GUI.js';
-import PopUp from './popupWindow.js';
+// import PopUp from './popupWindow.js';
 import { animRgb } from './animation.js';
 
 export default class Tetris {
@@ -13,7 +13,7 @@ export default class Tetris {
 		//OBJECTS------------------------------------------
 
 		this.gUI = new GUI(this);
-		this.pop_up = new PopUp(this);
+		// this.pop_up = new PopUp(this);
 		this.sounds = new SoundBoard();
 		this.lvl_color = new ColorHandler();
 		this.gameMusic = music;
@@ -101,11 +101,11 @@ export default class Tetris {
 			this.pauseScreen(deltaTime);
 			this.resetBlockDropCounter(deltaTime);			
 
-			if (!this.startScreen
-			&&  !this.endGame
-			&&  !this.finalStats) {
-				this.pop_up.update(time);
-			}
+			// if (!this.startScreen
+			// &&  !this.endGame
+			// &&  !this.finalStats) {
+			// 	this.pop_up.update(time);
+			// }
 
 			requestAnimationFrame(this._gameLoop);
 			lastTime = time;
