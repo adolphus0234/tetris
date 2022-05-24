@@ -13,7 +13,10 @@ export default class Tetris {
 		//OBJECTS------------------------------------------
 
 		this.gUI = new GUI(this);
+		// Will reactivate later....
+
 		// this.pop_up = new PopUp(this);
+		
 		this.sounds = new SoundBoard();
 		this.lvl_color = new ColorHandler();
 		this.gameMusic = music;
