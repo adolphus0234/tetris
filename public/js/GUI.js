@@ -26,6 +26,27 @@ export default class GUI {
 		this.gameOverText = new Text("", 44, 350, 
 								   "white", 40, this.context_g1);
 
+
+		this.controlsHeading = new Text("CONTROLS", 60, 53, 
+								   "white", 36, this.context_g1);
+		this.controlsLine_1 = new Text("Rotate: Q/W", 30, 170, 
+								   "rgb(212, 252, 250)", 24, this.context_g1);
+		this.controlsLine_2 = new Text("Left/Right:◀/▶", 30, 220, 
+								   "rgb(212, 252, 250)", 24, this.context_g1);
+		this.controlsLine_3 = new Text("Drop: ▼", 30, 270, 
+								   "rgb(212, 252, 250)", 24, this.context_g1);
+		this.controlsLine_4 = new Text("Pause: Space", 30, 320, 
+								   "rgb(212, 252, 250)", 24, this.context_g1);
+		this.controlsLine_5 = new Text("Reset: Spc+Shft", 30, 370, 
+								   "rgb(212, 252, 250)", 24, this.context_g1);
+		this.controlsLine_6 = new Text("Compatible with Xbox", 30, 470, 
+								   "rgb(212, 252, 250)", 18, this.context_g1);
+		this.controlsLine_7 = new Text("360 Controller.", 30, 500, 
+								   "rgb(212, 252, 250)", 18, this.context_g1);
+		this.controlsLine_8 = new Text("PRESS SPACE", 66, 620, 
+								   "rgb(212, 252, 250)", 24, this.context_g1);
+
+
 		this.recapHeading = new Text("", 94, 53, 
 								   "white", 24, this.context_g1);
 		this.recapLine_1 = new Text("", 45, 120, 
@@ -282,6 +303,25 @@ export default class GUI {
 
 			this.gp_detect.show();
 			this.gp_detect.color = this.slowFlash2(time / 700);
+		}
+
+		if (this.tetris.controlsScreen && this.tetris.firstPlay) {
+
+			// Show Keyboard Inputs for game
+			
+			this.clearScreen();
+
+			this.controlsHeading.show();
+			this.controlsLine_1.show();
+			this.controlsLine_2.show();
+			this.controlsLine_3.show();
+			this.controlsLine_4.show();
+			this.controlsLine_5.show();
+			this.controlsLine_6.show();
+			this.controlsLine_7.show();
+
+			this.controlsLine_8.show();
+			this.controlsLine_8.color = this.slowFlash(time / 700);
 		}
 
 		if (this.tetris.finalStats) {

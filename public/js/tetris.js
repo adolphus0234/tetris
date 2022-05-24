@@ -69,8 +69,11 @@ export default class Tetris {
 		this.paused = false;
 		this.firstPause = true;
 		this.startScreen = true;
+		this.controlsScreen = false; 
 		this.endGame = false;
 		this.finalStats = false;
+
+		this.firstPlay = true;
 
 		this.hideNextBox = false;
 		this.pauseSwitch = true;
@@ -87,7 +90,8 @@ export default class Tetris {
 			//ADD LABELS HERE
 	
 			if (!this.paused && !this.startScreen
-			&&  !this.endGame && !this.finalStats) {
+			&& 	!this.controlsScreen && !this.endGame 
+			&& 	!this.finalStats) {
 				this.update(deltaTime, time / 10);
 			}
 
@@ -196,7 +200,9 @@ export default class Tetris {
 
 		this.drawMatrix(this.arena.matrix, {x: 0, y: 0}, 1, this.context, time);
 
-		this.context.fillStyle = 'rgb(25, 25, 25)';
+		//Invisible Cover for top of the play field (Needed to hide blocks if they pass the upper limit of the play area)
+
+		this.context.fillStyle = 'rgb(0, 0, 0)';
 		this.context.fillRect(0, 0, this.width, 1);	
 	}
 
@@ -204,6 +210,7 @@ export default class Tetris {
 		matrix.forEach((row, y) => {
 			row.forEach((value, x) => {
 				if (value !== 0) {
+					// create tetris block object and replace this code
 					context.fillStyle = this.innerBlockColorLayer[value];
 					context.fillRect(x * scale + offset.x, 
 									 y * scale + offset.y, 	
@@ -244,6 +251,7 @@ export default class Tetris {
 		matrix.forEach((row, y) => {
 			row.forEach((value, x) => {
 				if (value === 8) {
+					// create shutter block object and replace this code
 					context.fillStyle = 'rgb(30, 30, 30)';
 					context.fillRect(x * scale + offset.x, 
 										  y * scale + offset.y, 

@@ -3,10 +3,31 @@ import { reset, pauseGame, openFullscreen,
 
 //Gamepad Events=====================================================//
 
-export default class Gamepad2 {
+export default class Gamepad {
 	constructor(tetris) {
 		this.tetris = tetris;
 		this._gameLoop;
+
+		//GamePad Event Listeners----------------------
+
+		window.addEventListener("gamepadconnected", event => {
+			this.gamepadAPI(event);
+		});
+
+		window.addEventListener("gamepadconnected", event => {
+		  	if (event.gamepad.connected === true) {
+		  		this.tetris.gamePadConnected = true;
+		  		this.tetris.gpDetect();
+		  	}
+		});
+
+		window.addEventListener("gamepaddisconnected", event => {
+			if (event.gamepad.connected === false) {
+			  	this.tetris.gamePadConnected = false;
+			    cancelAnimationFrame(this._gameLoop);
+			  	this.tetris.gpDetect();
+			}
+		});
 	}
 
 	gamepadAPI(e) {
