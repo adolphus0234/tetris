@@ -205,7 +205,7 @@ export default class Arena {
 		}	
 
 		this.gUI.scoreText.text = `${tetris.score}`.padStart(7, '0');
-		this.gUI.topScoreText.text = `${tetris.topScore}`.padStart(7, '0');	
+		this.gUI.topScoreText.text = `${tetris.topScore}`.padStart(7, '0');
 
 		// fetch('http://localhost:3001/topscore', {
 		// 	method: 'get',

@@ -172,7 +172,8 @@ export default class Gamepad {
 					}
 
 					if (!this.tetris.paused && !this.tetris.startScreen 
-						&& !this.tetris.endGame && !this.tetris.finalStats) {
+						&& !this.tetris.endGame && !this.tetris.finalStats
+						&& !this.tetris.controlsScreen) {
 
 						if (D_PAD_LEFT === false &&
 							D_PAD_RIGHT === false) {
@@ -224,9 +225,10 @@ export default class Gamepad {
 				const D_PAD_DOWN = gp.buttons[13].pressed;
 
 				if (FRAME_COUNTER_2 === 0) {
-					if (!this.tetris.paused && !this.tetris.startScreen 
+					if (!this.tetris.paused && !this.tetris.startScreen
 						&& !this.tetris.player.dD && !this.tetris.arena.rowClear 
-						&& !this.tetris.endGame && !this.tetris.finalStats) {
+						&& !this.tetris.endGame && !this.tetris.finalStats
+						&& !this.tetris.controlsScreen) {
 
 						if (D_PAD_DOWN === false) {
 							RELEASE_HOLD = false;
@@ -260,7 +262,8 @@ export default class Gamepad {
 
 				if (!this.tetris.paused && !this.tetris.startScreen
 					&& !this.tetris.player.dD && !this.tetris.arena.rowClear
-					&& !this.tetris.endGame && !this.tetris.finalStats) {	
+					&& !this.tetris.endGame && !this.tetris.finalStats
+					&& !this.tetris.controlsScreen) {	
 
 					if (A_BUTTON === false &&
 						X_BUTTON === false) {
@@ -362,7 +365,7 @@ export default class Gamepad {
 				}
 
 				if (!this.tetris.startScreen && !this.tetris.endGame
-					&& !this.tetris.finalStats) {
+					&& !this.tetris.controlsScreen && !this.tetris.finalStats) {
 
 					if (START_BUTTON === false) {
 						HOLDING_START = false;

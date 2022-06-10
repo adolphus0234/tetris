@@ -59,7 +59,7 @@ export default class KeyBoard {
 			if (FRAME_COUNTER_1 > DROP_RATE) {
 				if (!that.tetris.paused && !that.tetris.startScreen 
 					&& !that.tetris.player.dD && !that.tetris.arena.rowClear
-					&& !that.tetris.endGame) {
+					&& !that.tetris.controlsScreen && !that.tetris.endGame) {
 
 					if (that.keyState['ArrowDown']) {
 						that.tetris.player.dropDown(that.tetris);
@@ -91,7 +91,7 @@ export default class KeyBoard {
 
 				if (!that.tetris.paused && !that.tetris.startScreen 
 					&& !that.tetris.player.dD && !that.tetris.arena.rowClear
-					&& !that.tetris.endGame) {			
+					&& !that.tetris.controlsScreen && !that.tetris.endGame) {			
 
 					if (that.keyState['ArrowLeft']) {
 
@@ -325,7 +325,7 @@ export default class KeyBoard {
 
 		if (!this.tetris.paused && !this.tetris.startScreen 
 			&& !player.dD && !this.tetris.arena.rowClear
-			&& !this.tetris.endGame) {
+			&& !this.tetris.controlsScreen && !this.tetris.endGame) {
 			if (event.code === 'KeyQ'
 				    && event.repeat === false) {
 				player.rotateLeft();

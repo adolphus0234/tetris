@@ -44,6 +44,13 @@ export default class Tetris {
 
 		this.score = 0;
 		this.topScore = 0;
+
+		if (JSON.parse(localStorage.getItem('tetrisTopScore')) !== null) {
+			const TOP_SCORE_JSON = JSON.parse(localStorage.getItem('tetrisTopScore'));
+			console.log(TOP_SCORE_JSON); 
+			this.topScore = TOP_SCORE_JSON;
+			this.gUI.topScoreText.text = `${this.topScore}`.padStart(7, '0');
+		}
 		
 		this.bestSessionScore = 0;
 		this.avgScore = 0;
@@ -404,7 +411,7 @@ export default class Tetris {
 
 		} else if (this.gamePadConnected === false) {
 
-			gp_detect.text = 'A gamepad disconnected...';
+			gp_detect.text = 'Gamepad disconnected..';
 			setTimeout(function() {
 				gp_detect.text = '';
 			}, 7000)

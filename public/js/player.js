@@ -341,6 +341,8 @@ export default class Player {
 			arena.clear();
 
 			if (tetris.score > tetris.topScore) {
+				localStorage.clear();
+				localStorage.setItem('tetrisTopScore', JSON.stringify(tetris.score));
 				// fetch('http://localhost:3001/new-topscore', {
 				// 	method: 'put',
 				// 	headers: {'Content-Type': 'application/json'},

@@ -20,6 +20,12 @@ export default class GUI {
 		this.leftArrow = new Text("<", 60, 355, "white", 36, this.context_g1);		
 		this.rightArrow = new Text(">", 260, 355, "white", 36, this.context_g1);
 
+		this.gameControlsText_1 = new Text("Choose Level: ◀/▶", 
+							55, 600, "rgb(212, 252, 250)", 18, this.context_g1);
+		this.gameControlsText_2 = new Text("PRESS SPACE to Start", 
+							30, 630, "rgb(212, 252, 250)", 18, this.context_g1);
+
+
 		this.pausedText = new Text("PAUSED", 77, 326, 
 								   "white", 40, this.context_g1);
 
@@ -68,7 +74,7 @@ export default class GUI {
 		this.press_space = new Text("", 54, 578, 
 								   "white", 27, this.context_g1);
 
-		this.gp_detect = new Text("", 45, 678, 
+		this.gp_detect = new Text("", 45, 670, 
 								  "white", 26, this.context_g1);
 		this.gp_detect.font = "Arcade";
 
@@ -246,7 +252,13 @@ export default class GUI {
 			this.leftArrow.show();
 			
 			this.rightArrow.color = this.rightArrowColor;
-			this.rightArrow.show();		
+			this.rightArrow.show();
+
+			if (!this.tetris.gamePadConnected) {
+				this.gameControlsText_1.show();
+				this.gameControlsText_2.show();
+			}
+			
 		}
 
 		if (this.tetris.endGame) {
@@ -298,7 +310,7 @@ export default class GUI {
 			if (!this.tetris.gamePadConnected) {
 				this.gp_detect.x = 20;
 			} else {
-				this.gp_detect.x = 45;
+				this.gp_detect.x = 22;
 			}
 
 			this.gp_detect.show();
