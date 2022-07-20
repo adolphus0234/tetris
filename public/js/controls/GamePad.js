@@ -454,7 +454,7 @@ export default class Gamepad {
 						}
 
 						if (L_2 === true && HOLDING_L2 === false) {
-							this.tetris.pop_up.open = !this.tetris.pop_up.open;
+							// this.tetris.pop_up.open = !this.tetris.pop_up.open;
 							TOGGLE_RATE = 1005;
 							HOLDING_L2 = true;
 							setTimeout(function() {

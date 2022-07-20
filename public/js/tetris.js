@@ -47,7 +47,7 @@ export default class Tetris {
 
 		if (JSON.parse(localStorage.getItem('tetrisTopScore')) !== null) {
 			const TOP_SCORE_JSON = JSON.parse(localStorage.getItem('tetrisTopScore'));
-			console.log(TOP_SCORE_JSON); 
+			
 			this.topScore = TOP_SCORE_JSON;
 			this.gUI.topScoreText.text = `${this.topScore}`.padStart(7, '0');
 		}

@@ -14,8 +14,8 @@ export default class GUI {
 
 		//DRAW SCREEN - STATIC
 			
-		this.selectLevelText = new Text("SELECT LEVEL:", 10, 300, 
-									    "white", 32, this.context_g1);
+		this.selectLevelText = new Text("SELECT LEVEL:", 15, 300, 
+									    "white", 31	, this.context_g1);
 
 		this.leftArrow = new Text("<", 60, 355, "white", 36, this.context_g1);		
 		this.rightArrow = new Text(">", 260, 355, "white", 36, this.context_g1);
