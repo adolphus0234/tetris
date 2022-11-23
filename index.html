@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>Tetris</title>
+	<link rel="shortcut icon" href="#">
+	<link rel="stylesheet" type="text/css" href="index.css">
+</head>
+	<body id="_body" class='body'>
+		<div id="main-cont" class='game-cont'>
+			<h3 class='session'></h3>
+			<div class='sess-grid'>
+				<h3 class='game-count'></h3>
+				<h3 class='b-score'></h3>
+				<h3 class='b-t-rate'></h3>
+				<h3 class='avg-score'></h3>
+				<h3 class='avg-t-rate'></h3>
+				<h3 class='avg-lines'></h3>
+				<h3 class='tendencies_1'></h3>
+			</div>
+			<canvas class='pop-up' width='50' height='50'></canvas>		
+			<div class='game-board'>
+				<canvas class='tetris' width='200' height='420'></canvas>
+				<canvas class='tetris-o' width='200' height='400'></canvas>
+				<canvas class='gui_1' width='350' height='702'></canvas>
+				<canvas class='gui_2' width='1125' height='685'></canvas>
+			</div>
+		</div>
+		<script type="module" src='main.js'></script>
+	</body>
+</html>

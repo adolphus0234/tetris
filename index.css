@@ -1,0 +1,162 @@
+@font-face {
+	font-family: Ponderosa;
+	src: local('Ponderosa'), url(./fonts/ponde_.ttf) format('truetype');
+}
+
+@font-face {
+	font-family: Arcade;
+	src: url(./fonts/arcade_classic.ttf);
+}
+
+body {
+	display: flex;
+	justify-content: center;
+	height: 90vh;
+	/*background: rgb(25, 25, 25);*/
+	background: rgb(0, 0, 0);
+	margin: 2px;
+	font-family: Ponderosa;
+}
+
+canvas {
+	border: double rgb(150, 150, 150);
+	border-style: outset;
+	border-width: 8px;
+	box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.6), 0 6px 20px 0 rgba(0, 0, 0, 0.6);
+	z-index: 0;
+}
+
+.pop-up {
+	visibility: hidden;
+	position: absolute;
+	z-index: 3;
+	background: black;
+	border-style: none;
+	box-shadow: 5px 10px 18px #000;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+.session {
+	position: absolute;
+	z-index: 4;
+	margin-top: 155px;
+	font-family: Ponderosa;
+	font-size: 2em;
+	font-weight: 150;
+}
+
+.sess-grid {
+	position: absolute;
+	z-index: 4;
+	padding-left: 30px;
+}
+
+.game-count {
+	z-index: 4;
+	margin-top: 235px;
+	font-family: Ponderosa;
+	font-size: 1.8em;
+	font-weight: 150;
+}
+
+.b-score {
+	z-index: 4;
+	margin-top: 15px;
+	font-family: Ponderosa;
+	font-size: 1.8em;
+	font-weight: 150;
+}
+
+.b-t-rate {
+	z-index: 4;
+	margin-top: 15px;
+	font-family: Ponderosa;
+	font-size: 1.8em;
+	font-weight: 150;
+}
+
+.avg-score {
+	z-index: 4;
+	margin-top: 15px;
+	font-family: Ponderosa;
+	font-size: 1.8em;
+	font-weight: 150;
+}
+
+.avg-t-rate {
+	z-index: 4;
+	margin-top: 15px;
+	font-family: Ponderosa;
+	font-size: 1.8em;
+	font-weight: 150;
+}
+
+.avg-lines {
+	z-index: 4;
+	margin-top: 15px;
+	font-family: Ponderosa;
+	font-size: 1.8em;
+	font-weight: 150;
+}
+
+.tendencies_1 {
+	z-index: 4;
+	margin-top: 40px;
+	font-family: Ponderosa;
+	font-size: 1.8em;
+	font-weight: 150;
+}
+
+.game-cont {
+	display: flex;
+	justify-content: center;
+	margin-top: auto;
+	margin-bottom: auto;
+}
+
+.tetris {
+	height: 700px;
+	border: none;
+	box-shadow: none;
+}
+
+.tetris-o {
+	height: 672px;
+	position: absolute;
+	z-index: 1;
+	margin-top: 22px;
+}
+
+.gui_1 {
+	font-family: Ponderosa;
+	/*height: 700px;*/
+	border: none;
+	box-shadow: none;
+	position: absolute;
+	z-index: 2;
+}
+
+.gui_2 {
+	font-family: Ponderosa;
+	/*height: 700px;*/
+	border-color: rgb(30, 30, 30);
+	border-style: solid;
+	border-width: 2px;
+	margin-top: 21px;
+	box-shadow: none;
+	position: absolute;
+	z-index: -1;
+}
+
+.game-board {
+	display: flex;
+	justify-content: center;
+	/*height: 100%;*/
+}
+
+h3 {
+	color: white;
+	font-size: 2.5em;
+	margin: 0px;
+}

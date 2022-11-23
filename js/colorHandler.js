@@ -1,0 +1,47 @@
+import { level_0, level_0A, 
+		 level_1, level_1A,
+		 level_2, level_2A,
+		 level_3, level_3A,
+		 level_4, level_4A,
+		 level_5, level_5A,
+		 level_6, level_6A,
+		 level_7, level_7A,
+		 level_8, level_8A,
+		 level_9, level_9A,
+		 level_10, level_10A,
+		 level_11, level_11A,
+		 level_12, level_12A,
+		 level_13, level_13A,
+		 level_14, level_14A,
+		 level_15, level_15A,
+		 level_16, level_16A,
+		 level_17, level_17A,
+		 level_18, level_18A,
+		 level_19, level_19A, } from './levelColors.js';
+
+export default class ColorHandler {
+	constructor() {
+		this.colors = [
+			[level_0, level_0A],
+			[level_1, level_1A],
+			[level_2, level_2A],
+			[level_3, level_3A],
+			[level_4, level_4A],
+			[level_5, level_5A],
+			[level_6, level_6A],
+			[level_7, level_7A],
+			[level_8, level_8A],
+			[level_9, level_9A],
+			[level_10, level_10A],
+			[level_11, level_11A],
+			[level_12, level_12A],
+			[level_13, level_13A],
+			[level_14, level_14A],
+			[level_15, level_15A],
+			[level_16, level_16A],
+			[level_17, level_17A],
+			[level_18, level_18A],
+			[level_19, level_19A],
+		];
+	}
+}
