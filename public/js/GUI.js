@@ -71,12 +71,11 @@ export default class GUI {
 								   "rgb(212, 252, 250)", 32, this.context_g1);
 		this.recapLine_8 = new Text("", 45, 470, 
 								   "rgb(212, 252, 250)", 32, this.context_g1);
-		this.press_space = new Text("", 54, 578, 
-								   "white", 27, this.context_g1);
 
-		this.gp_detect = new Text("", 45, 670, 
-								  "white", 26, this.context_g1);
-		this.gp_detect.font = "Arcade";
+		this.press_space = new Text("", 54, 578, "white", 27, this.context_g1);
+
+		this.gp_detect = new Text("", 45, 670, "white", 26, this.context_g1);
+		this.gp_detect.setFontFamily("Arcade", "url(./fonts/arcade_classic.ttf)");
 
 		//DRAW GUI - STATIC
 
@@ -92,9 +91,8 @@ export default class GUI {
 		this.lineCountLabel = new Text("LINES: 0", 794, 249, "white", 32, this.context_g2);
 
 		this.nextPieceBox = new Box(783, 340, 190, 190, this.context_g2, 8);
-		this.nextPieceLabel = new Text("NEXT", 811, 355, "white", 66, this.context_g2, 
-									   "Arcade", "url(./fonts/arcade_classic.ttf)");
-		// this.nextPieceLabel.font = "Arcade";
+		this.nextPieceLabel = new Text("NEXT", 811, 355, "white", 66, this.context_g2);
+		this.nextPieceLabel.setFontFamily("Arcade", "url(./fonts/arcade_classic.ttf)");
 
 		this.levelBox = new Box(783, 546, 190, 85, this.context_g2, 6);
 		this.levelLabel = new Text("LEVEL:", 794, 557, "white", 30, this.context_g2);

@@ -13,6 +13,7 @@ export default class Tetris {
 		//OBJECTS------------------------------------------
 
 		this.gUI = new GUI(this);
+		
 		// Will reactivate later....
 
 		// this.pop_up = new PopUp(this);

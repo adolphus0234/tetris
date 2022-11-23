@@ -1,14 +1,13 @@
 export default class Text {
-	constructor(text, x, y, color, fontSize, context, 
-				font = "Ponderosa", url = "url(./fonts/ponde_.ttf)") {
+	constructor(text, x, y, color, fontSize, context) {
 		
 		this.text = text;
 		this.x = x;
 		this.y = y;
 
 		this.color = color;
-		this.font = font;
-		this.url = url;
+		this.font = "Ponderosa";
+		this.url = "url(./fonts/ponde_.ttf)";
 		this.fontSize = fontSize;
 		this.stringFontSize = `${this.fontSize.toString()}px`;
 		this.context = context;
@@ -16,6 +15,11 @@ export default class Text {
 		this.yOffset = this.fontSize * 3/4;
 
 		this.loading = true;
+	}
+
+	setFontFamily(font, url) {
+		this.font = font;
+		this.url = url;
 	}
 
 	show() {
